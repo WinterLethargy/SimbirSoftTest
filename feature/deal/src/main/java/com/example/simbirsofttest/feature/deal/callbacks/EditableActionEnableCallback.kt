@@ -11,6 +11,7 @@ class EditableActionEnableCallback(
         if(!isEditableActionEnable()){
             menu.removeItem(android.R.id.cut)
             menu.removeItem(android.R.id.paste)
+            menu.removeItem(android.R.id.pasteAsPlainText)
         }
         return true
     }
