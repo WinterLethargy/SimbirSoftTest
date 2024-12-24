@@ -5,10 +5,10 @@ import android.view.Menu
 import android.view.MenuItem
 
 class EditableActionEnableCallback(
-    private val isEditableActionEnable: () -> Boolean
+    var isEditableActionEnable: Boolean
 ): ActionMode.Callback {
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        if(!isEditableActionEnable()){
+        if(!isEditableActionEnable){
             menu.removeItem(android.R.id.cut)
             menu.removeItem(android.R.id.paste)
             menu.removeItem(android.R.id.pasteAsPlainText)

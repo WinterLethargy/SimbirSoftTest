@@ -48,7 +48,7 @@ internal class DealFragment : Fragment() {
     private var _binding: PageDealBinding? = null
     private val binding get() = _binding!!
 
-    private val menuProvider: DealDetailMenuProvider by lazy {
+    private val menuProvider by lazy {
         DealDetailMenuProvider(
             mode = viewModel.uiState.value.mode,
             editAction = viewModel::edit,
@@ -70,6 +70,12 @@ internal class DealFragment : Fragment() {
                     }
                 }
             }
+        )
+    }
+
+    private val editableActionEnableCallback by lazy {
+        EditableActionEnableCallback(
+            viewModel.uiState.value.mode.isEditableMode
         )
     }
 
@@ -172,6 +178,7 @@ internal class DealFragment : Fragment() {
     }
 
     private fun onModeChanged(mode: Mode){
+        editableActionEnableCallback.isEditableActionEnable = mode.isEditableMode
         menuProvider.mode = mode
         when (mode){
             Mode.show -> {
@@ -221,13 +228,7 @@ internal class DealFragment : Fragment() {
             }
             dealNameText.doOnTextChanged { text, start, before, count -> viewModel.setEditName(text?.toString()) }
             dealDescriptionText.doOnTextChanged { text, start, before, count -> viewModel.setEditDescription(text?.toString()) }
-            EditableActionEnableCallback{
-                when(viewModel.uiState.value.mode){
-                    Mode.show -> false
-                    Mode.edit -> true
-                    Mode.create -> true
-                }
-            }.let {
+            editableActionEnableCallback.let {
                 dealNameText.customSelectionActionModeCallback = it
                 dealDescriptionText.customSelectionActionModeCallback = it
             }
@@ -237,7 +238,7 @@ internal class DealFragment : Fragment() {
     private fun showDatePickerDialog() {
         val uiState = viewModel.uiState.value
         if(uiState.mode == Mode.show)
-            return;
+            return
 
         val date = uiState.editDeal?.deal?.date ?: LocalDate.now()
 
@@ -255,8 +256,8 @@ internal class DealFragment : Fragment() {
 
     private fun selectStartHour(){
         val uiState = viewModel.uiState.value
-        if(uiState.mode == DealViewModel.Mode.show)
-            return;
+        if(uiState.mode == Mode.show)
+            return
 
         val startHour = uiState.editDeal?.deal?.startHour ?: LocalTime.now().hour
 
@@ -267,8 +268,8 @@ internal class DealFragment : Fragment() {
 
     private fun selectEndHour(){
         val uiState = viewModel.uiState.value
-        if(uiState.mode == DealViewModel.Mode.show)
-            return;
+        if(uiState.mode == Mode.show)
+            return
 
         val endDateTime = uiState.editDeal?.deal?.dateTimeEnd ?: LocalDateTime.now()
         val endHour = endDateTime.hour

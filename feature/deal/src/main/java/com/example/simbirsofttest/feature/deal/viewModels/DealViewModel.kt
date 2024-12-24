@@ -283,7 +283,12 @@ internal class DealViewModel @Inject constructor(
     enum class Mode{
         create,
         show,
-        edit,
+        edit;
+        val isEditableMode get() = when(this){
+            show -> false
+            edit -> true
+            create -> true
+        }
     }
 
     companion object{
