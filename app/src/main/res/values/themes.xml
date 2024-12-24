@@ -1,0 +1,5 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SimbirSoftTest" parent="Theme.Material3.Dark.NoActionBar"/>
+    <style name="Theme.SimbirSoftTest" parent="Base.Theme.SimbirSoftTest" />
+</resources>

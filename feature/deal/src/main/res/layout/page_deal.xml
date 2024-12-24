@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_top"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="@dimen/vertical_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_bottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="@dimen/vertical_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_start"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/horizontal_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_end"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/horizontal_margin" />
+
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:text="@string/date_text"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@id/content_start"
+        app:layout_constraintTop_toTopOf="@id/content_top" />
+
+    <TextView
+        android:id="@+id/date_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/date_time_select_background"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/horizontal_margin"
+        tools:text="2024-12-20"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@id/date_text"
+        app:layout_constraintStart_toEndOf="@id/date_text"
+        app:layout_constraintTop_toTopOf="@id/date_text" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/date_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="date_text,date_picker"/>
+    <LinearLayout
+        android:id="@+id/time_start_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@id/time_end_contained"
+        app:layout_constraintStart_toStartOf="@id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/date_barrier">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:lines="1"
+            android:text="@string/time_start" />
+
+        <TextView
+            android:id="@+id/time_start_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/date_time_select_background"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/horizontal_margin"
+            tools:text="00:00"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time_end_contained"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="@id/content_end"
+        app:layout_constraintStart_toEndOf="@id/time_start_container"
+        app:layout_constraintTop_toBottomOf="@id/date_barrier">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginEnd="10dp"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:lines="1"
+            android:text="@string/time_end" />
+
+        <TextView
+            android:id="@+id/time_end_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/date_time_select_background"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/horizontal_margin"
+            tools:text="00:00"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/cross_deal_warning"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        app:layout_constraintStart_toStartOf="@id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/time_start_container"
+        app:layout_constraintEnd_toEndOf="@id/content_end"
+        android:textSize="18sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:gravity="center"
+        android:text="@string/cross_deal_warning"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/time_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="cross_deal_warning,time_start_container,time_end_contained"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/deal_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/time_barrier"
+        app:layout_constraintEnd_toEndOf="@id/content_end">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/deal_name_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:maxLines="1"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:hint="@string/deal_name"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/deal_description"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/deal_name"
+        app:layout_constraintEnd_toEndOf="@id/content_end"
+        app:layout_constraintBottom_toBottomOf="@id/content_bottom">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/deal_description_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:textSize="16sp"
+            android:inputType="textMultiLine"
+            android:hint="@string/deal_description"/>
+    </com.google.android.material.textfield.TextInputLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

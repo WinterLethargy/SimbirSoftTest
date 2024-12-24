@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_deal"
+    app:startDestination="@id/deal_calendar">
+    <fragment
+        android:id="@+id/deal_calendar"
+        android:name="com.example.simbirsofttest.feature.deal.fragments.DealCalendarFragment"
+        android:label="@string/deal_calendar_label"/>
+</navigation>

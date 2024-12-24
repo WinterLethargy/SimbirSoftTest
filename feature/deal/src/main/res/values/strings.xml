@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deal_calendar_label">Календарь</string>
+    <string name="deal_detail_label">Задача</string>
+    <string name="deal_creation_label">Новая задача</string>
+    <string name="add">Добавить</string>
+    <string name="edit">Редактировать</string>
+    <string name="cancel">Отменить редактирование</string>
+    <string name="save">Сохранить</string>
+    <string name="deal_name">Название</string>
+    <string name="deal_description">Описание</string>
+    <string name="cross_deal_warning">Время пересекается с другими делами</string>
+    <string name="date_text">Дата:</string>
+    <string name="time_start">Начало:</string>
+    <string name="time_end">Конец:</string>
+</resources>
