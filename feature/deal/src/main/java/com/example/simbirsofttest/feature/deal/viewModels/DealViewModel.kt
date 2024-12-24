@@ -57,8 +57,8 @@ internal class DealViewModel @Inject constructor(
         .flatMapLatest {
             if(it != null)
                 dealRepository.getFlow(it)
-                    .catch {
-                        Log.e(null, null, it)
+                    .catch { ex ->
+                        Log.e(null, null, ex)
                         emit(null)
                     }
             else
@@ -133,19 +133,11 @@ internal class DealViewModel @Inject constructor(
         }
     }
 
-    private val editDeal: Flow<EditDealUiState?> = combine(
+    private val editDeal: Flow<Deal?> = combine(
         editDealWithoutDescription,
         editDescription
     ) { dealWithoutDescription, description ->
-        if (dealWithoutDescription == null) {
-            null
-        } else {
-            EditDealUiState(
-                deal = dealWithoutDescription.copy(description = description ?: String.empty),
-                crossDeals = false,
-                incorrectTime = false,
-            )
-        }
+        dealWithoutDescription?.copy(description = description ?: String.empty)
     }
 
     val uiState: StateFlow<DealUiState> = combine(
@@ -180,10 +172,9 @@ internal class DealViewModel @Inject constructor(
         )
     )
 
-    private fun setupEditDealValidData(editDealUiState: EditDealUiState?, originalDeal: Deal?, dealsByDay: List<Deal>): EditDealUiState? {
-        if(editDealUiState == null)
+    private fun setupEditDealValidData(editDeal: Deal?, originalDeal: Deal?, dealsByDay: List<Deal>): EditDealUiState? {
+        if(editDeal == null)
             return null
-        val editDeal = editDealUiState.deal
         val dateTimeStart = editDeal.dateTimeStart
         val dateTimeEnd = editDeal.dateTimeEnd
         val incorrectTime = dateTimeStart >= dateTimeEnd
@@ -198,7 +189,11 @@ internal class DealViewModel @Inject constructor(
             else
                 !localDealsByDay.all { it.dateTimeStart >= dateTimeEnd || it.dateTimeEnd <= dateTimeStart }
 
-        return editDealUiState.copy(incorrectTime = incorrectTime, crossDeals = crossDeals)
+        return EditDealUiState(
+            editDeal,
+            incorrectTime,
+            crossDeals
+        )
     }
 
     fun edit(){
