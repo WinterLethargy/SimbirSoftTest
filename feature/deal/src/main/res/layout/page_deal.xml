@@ -135,6 +135,7 @@
         android:textSize="18sp"
         android:textColor="@android:color/holo_red_dark"
         android:gravity="center"
+        android:visibility="gone"
         android:text="@string/cross_deal_warning"/>
 
     <androidx.constraintlayout.widget.Barrier
