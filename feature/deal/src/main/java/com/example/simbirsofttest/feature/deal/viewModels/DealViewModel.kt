@@ -173,8 +173,9 @@ internal class DealViewModel @Inject constructor(
     )
 
     private fun setupEditDealValidData(editDeal: Deal?, originalDeal: Deal?, dealsByDay: List<Deal>): EditDealUiState? {
-        if(editDeal == null)
+        if(editDeal == null || editDeal.duration == 0)
             return null
+
         val dateTimeStart = editDeal.dateTimeStart
         val dateTimeEnd = editDeal.dateTimeEnd
         val incorrectTime = dateTimeStart >= dateTimeEnd
@@ -188,6 +189,11 @@ internal class DealViewModel @Inject constructor(
                 false
             else
                 !localDealsByDay.all { it.dateTimeStart >= dateTimeEnd || it.dateTimeEnd <= dateTimeStart }
+
+        if(crossDeals)
+        {
+            println("crossdeals")
+        }
 
         return EditDealUiState(
             editDeal,
@@ -307,6 +313,6 @@ internal data class DealUiState(
 
 internal data class EditDealUiState(
     val deal: Deal,
-    val crossDeals: Boolean,
-    val incorrectTime: Boolean,
+    val crossDeals: Boolean = false,
+    val incorrectTime: Boolean = false,
 )
