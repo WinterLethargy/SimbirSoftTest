@@ -190,11 +190,6 @@ internal class DealViewModel @Inject constructor(
             else
                 !localDealsByDay.all { it.dateTimeStart >= dateTimeEnd || it.dateTimeEnd <= dateTimeStart }
 
-        if(crossDeals)
-        {
-            println("crossdeals")
-        }
-
         return EditDealUiState(
             editDeal,
             incorrectTime,
@@ -313,6 +308,6 @@ internal data class DealUiState(
 
 internal data class EditDealUiState(
     val deal: Deal,
-    val crossDeals: Boolean = false,
-    val incorrectTime: Boolean = false,
+    val crossDeals: Boolean,
+    val incorrectTime: Boolean,
 )
