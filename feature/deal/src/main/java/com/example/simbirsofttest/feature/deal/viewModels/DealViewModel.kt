@@ -11,7 +11,7 @@ import com.example.simbirsofttest.data.models.Deal
 import com.example.simbirsofttest.data.models.dateTimeEnd
 import com.example.simbirsofttest.data.models.dateTimeStart
 import com.example.simbirsofttest.data.repositories.IDealRepository
-import com.example.simbirsofttest.feature.deal.extensions.readLocalDate
+import com.example.simbirsofttest.feature.deal.extensions.readDeal
 import com.example.simbirsofttest.feature.deal.extensions.toBundle
 import com.example.simbirsofttest.feature.deal.navigation.DealRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,80 +65,41 @@ internal class DealViewModel @Inject constructor(
                 flowOf<Deal?>(null)
         }
 
-    private val editDate: Flow<LocalDate?> = savedStateHandle
-        .getStateFlow<Bundle?>(EDIT_DATE, null)
-        .map {
-            if(it == null && route.type == DealRoute.Type.creation){
-                if(route.year != null && route.month != null && route.day != null)
-                    LocalDate.of(
-                        route.year,
-                        route.month,
-                        route.day,
-                    )
+    private val editDeal: Flow<Deal?> = savedStateHandle
+        .getStateFlow<Bundle?>(EDIT_DEAL, getInitialDeal()?.toBundle())
+        .map{ it?.readDeal() }
+
+    private fun getInitialDeal() = when(initialMode){
+        Mode.show -> null
+        Mode.edit -> null
+        Mode.create -> Deal(
+            id = null,
+            name = String.empty,
+            description =  String.empty,
+            date = route.run{
+                if (year != null && month != null && day != null)
+                    LocalDate.of(year, month, day)
                 else
                     LocalDate.now()
-            }
-            else{
-                it?.readLocalDate()
-            }
-        }
+            },
+            startHour = route.hour ?: 0,
+            duration = 1,
+        )
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val dealsByDay: Flow<List<Deal>> = editDate
-        .flatMapLatest { date ->
-            if(date == null)
+    private val dealsByDay: Flow<List<Deal>> = editDeal
+        .flatMapLatest { editDeal ->
+            if(editDeal?.date == null)
                 flowOf(emptyList())
             else
                 dealRepository
-                    .getByDay(date)
+                    .getByDay(editDeal.date)
                     .catch { exception ->
                         Log.e(null, null, exception)
                         emit(emptyList())
                     }
         }
-
-    private val editStartHour: StateFlow<Int?> = savedStateHandle
-        .getStateFlow(EDIT_START_HOUR, if(route.type == DealRoute.Type.creation) route.hour ?: 0 else null)
-
-    private val editEndHour: StateFlow<Int?> = savedStateHandle
-        .getStateFlow(
-            EDIT_END_HOUR,
-            if(route.type == DealRoute.Type.creation) route.hour?.inc() ?: 1 else null)
-
-    private val editName: StateFlow<String?> = savedStateHandle
-        .getStateFlow(EDIT_NAME, null)
-
-    private val editDescription: StateFlow<String?> = savedStateHandle
-        .getStateFlow(EDIT_DESCRIPTION, null)
-
-    private val editDealWithoutDescription: Flow<Deal?> = combine(
-        id,
-        editDate,
-        editStartHour,
-        editEndHour,
-        editName
-    ) { id, date, startHour, endHour, name ->
-        if (date == null) {
-            null
-        } else {
-            val preserve24endHour = if (endHour == 0) 24 else endHour
-            Deal(
-                id = id,
-                date = date,
-                startHour = startHour ?: 0,
-                duration = if (preserve24endHour != null && startHour != null) preserve24endHour - startHour else 0,
-                name = name ?: String.empty,
-                description = String.empty
-            )
-        }
-    }
-
-    private val editDeal: Flow<Deal?> = combine(
-        editDealWithoutDescription,
-        editDescription
-    ) { dealWithoutDescription, description ->
-        dealWithoutDescription?.copy(description = description ?: String.empty)
-    }
 
     val uiState: StateFlow<DealUiState> = combine(
         mode,
@@ -173,7 +134,7 @@ internal class DealViewModel @Inject constructor(
     )
 
     private fun setupEditDealValidData(editDeal: Deal?, originalDeal: Deal?, dealsByDay: List<Deal>): EditDealUiState? {
-        if(editDeal == null || editDeal.duration == 0)
+        if(editDeal == null)
             return null
 
         val dateTimeStart = editDeal.dateTimeStart
@@ -192,8 +153,8 @@ internal class DealViewModel @Inject constructor(
 
         return EditDealUiState(
             editDeal,
+            crossDeals,
             incorrectTime,
-            crossDeals
         )
     }
 
@@ -211,7 +172,7 @@ internal class DealViewModel @Inject constructor(
             return
 
         setMode(Mode.show)
-        setNullEditDeal()
+        setEditDeal(null)
     }
 
     suspend fun save(): Deal?{
@@ -241,7 +202,7 @@ internal class DealViewModel @Inject constructor(
                 id = deal.id!!
             }
             setMode(Mode.show)
-            setNullEditDeal()
+            setEditDeal(null)
             return dealRepository.getDeal(id)
         }
         catch (ex: Exception){
@@ -252,34 +213,31 @@ internal class DealViewModel @Inject constructor(
 
     private fun setMode(mode: Mode) = savedStateHandle.set(MODE, mode.name)
 
-    fun setEditDate(date: LocalDate?) = savedStateHandle.set(EDIT_DATE, date?.toBundle())
-    fun setEditStartHour(startHour: Int?) = savedStateHandle.set(EDIT_START_HOUR, startHour)
-    fun setEditEndHour(endHour: Int?) = savedStateHandle.set(EDIT_END_HOUR, endHour)
-    fun setEditName(name: String?) = savedStateHandle.set(EDIT_NAME, name)
-    fun setEditDescription(description: String?) = savedStateHandle.set(EDIT_DESCRIPTION, description)
-
-    private fun setNullEditDeal(){
-        setEditDate(null)
-        setEditStartHour(null)
-        setEditEndHour(null)
-        setEditName(null)
-        setEditDescription(null)
+    fun setEditDate(date: LocalDate) = uiState.value.editDeal?.deal?.let{
+        setEditDeal(it.copy(date = date))
+    }
+    fun setEditStartHour(startHour: Int) = uiState.value.editDeal?.deal?.let{
+        val delta = it.startHour - startHour
+        val newDuration = it.duration + delta
+        setEditDeal(it.copy(startHour = startHour, duration = newDuration))
+    }
+    fun setEditEndHour(endHour: Int) = uiState.value.editDeal?.deal?.let{
+        setEditDeal(it.copy(duration = endHour - it.startHour))
+    }
+    fun setEditName(name: String) = uiState.value.editDeal?.deal?.let{
+        setEditDeal(it.copy(name = name))
+    }
+    fun setEditDescription(description: String) = uiState.value.editDeal?.deal?.let{
+        setEditDeal(it.copy(description = description))
     }
 
-    private fun setEditDeal(deal: Deal){
-        setEditDate(deal.date)
-        setEditStartHour(deal.startHour)
-        val preserve24endHour = deal.startHour + deal.duration
-        val endHour = if (preserve24endHour == 24) 0 else preserve24endHour
-        setEditEndHour(endHour)
-        setEditName(deal.name)
-        setEditDescription(deal.description)
-    }
+    private fun setEditDeal(deal: Deal?) = savedStateHandle.set(EDIT_DEAL, deal?.toBundle())
 
     enum class Mode{
         create,
         show,
         edit;
+
         val isEditableMode get() = when(this){
             show -> false
             edit -> true
@@ -289,14 +247,8 @@ internal class DealViewModel @Inject constructor(
 
     companion object{
         const val MODE = "MODE"
-
         const val ID = "ID"
-
-        const val EDIT_DATE = "EDIT_DATE"
-        const val EDIT_START_HOUR = "EDIT_START_HOUR"
-        const val EDIT_END_HOUR = "EDIT_END_HOUR"
-        const val EDIT_NAME = "EDIT_NAME"
-        const val EDIT_DESCRIPTION = "EDIT_DESCRIPTION"
+        const val EDIT_DEAL = "EDIT_DEAL"
     }
 }
 

@@ -32,4 +32,3 @@ internal fun DealDBEntity.toDeal(): Deal{
         duration = duration,
     )
 }
-

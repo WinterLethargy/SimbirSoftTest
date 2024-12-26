@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.simbirsofttest.core.utils.empty
 import com.example.simbirsofttest.data.models.Deal
 import com.example.simbirsofttest.data.models.dateTimeEnd
 import com.example.simbirsofttest.data.models.dateTimeStart
@@ -226,8 +227,8 @@ internal class DealFragment : Fragment() {
             timeEndPicker.setOnClickListener {
                 selectEndHour()
             }
-            dealNameText.doOnTextChanged { text, start, before, count -> viewModel.setEditName(text?.toString()) }
-            dealDescriptionText.doOnTextChanged { text, start, before, count -> viewModel.setEditDescription(text?.toString()) }
+            dealNameText.doOnTextChanged { text, start, before, count -> viewModel.setEditName(text?.toString() ?: String.empty) }
+            dealDescriptionText.doOnTextChanged { text, start, before, count -> viewModel.setEditDescription(text?.toString() ?: String.empty) }
             editableActionEnableCallback.let {
                 dealNameText.customSelectionActionModeCallback = it
                 dealDescriptionText.customSelectionActionModeCallback = it
